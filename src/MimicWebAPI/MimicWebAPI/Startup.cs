@@ -46,6 +46,7 @@ namespace MimicWebAPI
             }
 
             app.UseMvc();
+            app.UseStatusCodePages();
 
             //app.UseHttpsRedirection();
 

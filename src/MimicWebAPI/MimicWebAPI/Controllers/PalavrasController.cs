@@ -18,27 +18,41 @@ namespace MimicWebAPI.Controllers
             _banco = banco;
         }
 
-        //APP
+        //APP --/api/palavras?data=2021-05-18
         [Route("")]
         [HttpGet]
-        public ActionResult ObterTodasPalavras()
+        public ActionResult ObterTodasPalavras(DateTime? data)
         {
-            return Ok(_banco.Palavras);
+            var obj = _banco.Palavras.AsQueryable();
+            if (data.HasValue)
+            {
+                obj = obj.Where(a => a.Criado > data.Value || a.Atualizacao > data.Value);
+            }
+            return Ok(obj);
         }
+
+
+
+
 
         //Exemplo -> WEB --/api/palavras/1
         [Route("{id}")]
         [HttpGet]
         public ActionResult ObterPalavras(int id)
         {
-            return Ok(_banco.Palavras.Find(id));
+            var obj = _banco.Palavras.Find(id);
+            if(obj == null)
+            {
+                return NotFound();
+            }
+            return Ok();
         }
 
         [Route("")]
         [HttpPost]
-        public ActionResult CadastrarPalavras(Palavra palavra)
+        public ActionResult CadastrarPalavras([FromBody]Palavra palavra)
         {
-
+            
             _banco.Palavras.Add(palavra);
             _banco.SaveChanges();
 
@@ -47,8 +61,9 @@ namespace MimicWebAPI.Controllers
 
         [Route("{id}")]
         [HttpPut]
-        public ActionResult AtualizarPalavra(int id, Palavra palavra)
+        public ActionResult AtualizarPalavra(int id,[FromBody] Palavra palavra)
         {
+            palavra.Id = id;
             _banco.Palavras.Update(palavra);
             _banco.SaveChanges();
 
