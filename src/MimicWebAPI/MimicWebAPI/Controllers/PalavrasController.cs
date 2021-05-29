@@ -31,39 +31,54 @@ namespace MimicWebAPI.Controllers
             return Ok(obj);
         }
 
-
-
-
-
         //Exemplo -> WEB --/api/palavras/1
         [Route("{id}")]
         [HttpGet]
         public ActionResult ObterPalavras(int id)
         {
             var obj = _banco.Palavras.Find(id);
-            if(obj == null)
+            if (obj == null)
             {
-                return NotFound();
+                return NotFound(); // or statusCode(404);
             }
-            return Ok();
+
+            //Console.WriteLine(obj);
+            return Ok(obj);
         }
 
         [Route("")]
         [HttpPost]
-        public ActionResult CadastrarPalavras([FromBody]Palavra palavra)
+        public ActionResult CadastrarPalavras([FromBody] Palavra palavra)
         {
-            
+
             _banco.Palavras.Add(palavra);
+            _banco.SaveChanges();
+
+            return Created($"/api/palavras/{palavra.Id}", palavra);
+        }
+
+        [Route("{id}")]
+        [HttpPut]
+        public ActionResult AtualizarPalavra(int id, [FromBody] Palavra palavra)
+        {
+            palavra.Id = id;
+            _banco.Palavras.Update(palavra);
             _banco.SaveChanges();
 
             return Ok();
         }
 
         [Route("{id}")]
-        [HttpPut]
-        public ActionResult AtualizarPalavra(int id,[FromBody] Palavra palavra)
+        [HttpPatch]
+        public ActionResult Desativar(int id)
         {
-            palavra.Id = id;
+            var palavra = _banco.Palavras.Find(id);
+            if (palavra == null)
+            {
+                return NotFound();
+            }
+
+            palavra.Ativo = false;
             _banco.Palavras.Update(palavra);
             _banco.SaveChanges();
 
